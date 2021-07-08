@@ -1,6 +1,7 @@
 #
 # File: barcode_cor.py
-# Brief: OpenCV application providing barcode decoding and OCR text recognition
+# Project: OpenCV application providing barcode decoding and OCR text recognition
+# Brief: Entry point of the application
 # Author: alfan-ntu
 # Ver.: v. 0.1a
 # Date: 2021/7/7

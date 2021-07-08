@@ -1,6 +1,7 @@
 #
 # File: image_capture.py
-# Brief: OpenCV application providing barcode decoding and OCR text recognition
+# Project: OpenCV application providing barcode decoding and OCR text recognition
+# Brief: Image capturing front end
 # Author: alfan-ntu
 # Ver.: v. 0.1a
 # Date: 2021/7/7
@@ -13,6 +14,9 @@
 #
 import cv2
 from argv_parser import OptionContext
+import constant
+import utilities
+import numpy
 
 
 class ImageCapture():
@@ -31,6 +35,7 @@ class ImageCapture():
         self.roi = []
         self.vertex1_set = False
         self.roi_set = False
+        self.content_decoded = False
         cv2.namedWindow(self.opt_context.window_name)
         cv2.setMouseCallback(self.opt_context.window_name, self.mouse_event_handler)
 
@@ -44,16 +49,24 @@ class ImageCapture():
                 if len(self.roi) == 2:
                     self.frame = cv2.rectangle(self.frame, self.roi[0], self.roi[1], (0,255,255),1)
                 cv2.imshow(self.opt_context.window_name, self.frame)
-            # if self.roi_set:
-            #     cropped_img = self.frame[self.roi[0][0]:self.roi[1][0], self.roi[0][1]:self.roi[1][0]]
-            #     cv2.imshow("Cropped Window", cropped_img)
-            #     self.roi_set = False
+            if self.roi_set and not self.content_decoded:
+                if len(self.roi) == 2:
+                    valid, (x1, y1), (x2, y2), crop_width, crop_height = \
+                        utilities.validate_vertices((self.roi[0][0], self.roi[0][1]), (self.roi[1][0], self.roi[1][1]))
+                    if valid:
+                        cropped_img = self.frame[y1:y2, x1:x2]
+                        print(f'Coordinates 1: ({x1},{y1})')
+                        print(f'Coordinates 2: ({x2},{y2})')
+                        cv2.namedWindow(constant.CROPPED_WINDOW, cv2.WINDOW_AUTOSIZE)
+                        cv2.imshow(constant.CROPPED_WINDOW, cropped_img)
+                        self.reset_roi()
             k = cv2.waitKey(10)
             if k & 0xFF == ord('q'):
                 self.release()
                 break
             elif k & 0xFF == ord('c'):
                 self.reset_roi()
+                cv2.destroyWindow(constant.CROPPED_WINDOW)
 
     def release(self):
         print("Releasing resources...")
@@ -86,6 +99,7 @@ class ImageCapture():
     def reset_roi(self):
         self.roi_set = False
         self.vertex1_set = False
+        self.content_decoded = False
         self.roi.clear()
 
 
